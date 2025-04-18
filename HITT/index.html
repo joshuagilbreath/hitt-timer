@@ -29,14 +29,15 @@
     }
 
     #intervalLabel {
-      font-size: 1.5rem;
-      font-weight: bold;
+      font-size: 2rem;
+      font-weight: lighter;
       color: white;
       margin-bottom: 0.3rem;
     }
 
     .timer {
-      font-size: 4rem;
+      font-size: 6rem;
+	  font-weight: 	semi-bold;
       color: white;
       margin-bottom: 0.5rem;
     }
@@ -49,7 +50,7 @@
 
     #elapsedTime {
       color: white;
-      font-size: 1rem;
+      font-size: 1.5rem;
       margin-bottom: 0.5rem;
     }
 
@@ -61,13 +62,18 @@
       border-radius: 50%;
       position: absolute;
       bottom: -40px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      box-shadow: 0 0px 6px rgba(0,0,0,0.15);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       font-size: 2rem;
       color: #666;
+	  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.15), /* existing shadow */
+    0 0 0 15px white;               /* white outline */
+	animation: pulse 0.8s ease-in-out;
+
     }
 
     .bottom-section {
@@ -88,7 +94,7 @@
       height: 10px;
       background-color: rgba(255, 255, 255, 0.3);
       border-radius: 10px;
-      margin: 8px auto;
+      margin: 10px auto;
       overflow: hidden;
     }
 
@@ -112,16 +118,16 @@
       left: 50%;
       transform: translate(-50%, -50%);
       background: white;
-      border-radius: 20px;
+      border-radius: 40px;
       box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-      padding: 2rem;
+      padding: 6rem;
       text-align: center;
       z-index: 2;
     }
 
     .round-button {
       display: block;
-      margin: 0.5rem auto;
+      margin: 1rem auto;
       padding: 1rem 2rem;
       border: none;
       border-radius: 10px;
