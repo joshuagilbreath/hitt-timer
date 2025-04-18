@@ -2,235 +2,298 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rowing Interval Timer</title>
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 2rem; background: #f4f4f4; transition: background 0.3s ease; }
-    h1 { font-size: 2rem; }
-    #timer { font-size: 5rem; margin: 1rem 0; }
-    #label { font-size: 1.5rem; margin-bottom: 1rem; }
-    #cycle { font-size: 1.2rem; margin-bottom: 1rem; }
-    #stage { font-size: 1rem; margin-bottom: 1rem; color: #666; }
-    #upcoming { font-size: 0.9rem; margin-top: 1rem; color: #444; }
-    #quote { font-size: 1.1rem; font-style: italic; margin-top: 2rem; color: #2e7d32; }
-    button { padding: 1rem 2rem; font-size: 1.2rem; margin: 0.5rem; border-radius: 10px; }
-    #progressContainer { width: 100%; background: #ddd; height: 20px; margin-top: 1rem; position: relative; cursor: pointer; }
-    #progressBar { width: 0%; height: 100%; background: #4caf50; transition: width 0.2s linear; position: absolute; top: 0; left: 0; }
-    #tooltip { position: absolute; background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; display: none; pointer-events: none; white-space: nowrap; }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: white;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .top-section {
+      background-color: #cccccc;
+      height: 33vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: background-color 0.4s ease;
+    }
+
+    #intervalLabel {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 0.3rem;
+    }
+
+    .timer {
+      font-size: 4rem;
+      color: white;
+      margin-bottom: 0.5rem;
+    }
+
+    #roundInfo {
+      color: white;
+      font-size: 1.2rem;
+      margin-bottom: 0.3rem;
+    }
+
+    #elapsedTime {
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .play-button {
+      background: white;
+      border: none;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      position: absolute;
+      bottom: -40px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 2rem;
+      color: #666;
+    }
+
+    .bottom-section {
+      flex: 1;
+      padding-top: 60px;
+      background: white;
+      border-top-left-radius: 30px;
+      border-top-right-radius: 30px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .progress-bar-container {
+      width: 80%;
+      height: 10px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      margin: 8px auto;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      transition: width 1s linear;
+    }
+
+    .progress-bar.total {
+      background-color: white;
+    }
+
+    .progress-bar.interval {
+      background-color: rgba(255, 255, 255, 0.6);
+    }
+
+    #setupPanel {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+      padding: 2rem;
+      text-align: center;
+      z-index: 2;
+    }
+
+    .round-button {
+      display: block;
+      margin: 0.5rem auto;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 10px;
+      background: #007bff;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <h1>Rowing Interval Timer</h1>
-  <div id="label">Press Start</div>
-  <div id="cycle"></div>
-  <div id="stage"></div>
-  <div id="timer">5:00</div>
-  <button onclick="startWorkout()">Start</button>
-  <button onclick="pauseResume()">Pause/Resume</button>
-  <button onclick="previousInterval()">Previous</button>
-  <button onclick="skipInterval()">Next</button>
-  <div id="progressContainer"><div id="progressBar"></div></div>
-  <div id="upcoming"></div>
-  <div id="quote"></div>
-  <div id="tooltip"></div>
-  <audio id="beep">
-    <source src="https://raw.githubusercontent.com/joshuagilbreath/notification-sounds/main/TEMPLE.mp3" type="audio/mp3">
-  </audio>
+  <div id="setupPanel">
+    <h2>Select Workout</h2>
+    <div id="roundButtons"></div>
+  </div>
+
+  <div class="container">
+    <div class="top-section" id="topColor">
+      <div id="intervalLabel">Warm-Up</div>
+      <div class="timer" id="timerDisplay">05:00</div>
+      <div id="roundInfo">Round 1</div>
+      <div id="elapsedTime">Workout Remaining: 00:00</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar total" id="totalProgress"></div>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar interval" id="intervalProgress"></div>
+      </div>
+      <button class="play-button" id="playPause">▶</button>
+    </div>
+    <div class="bottom-section"></div>
+  </div>
+
+  <audio id="chime" src="https://raw.githubusercontent.com/joshuagilbreath/notification-sounds/main/TEMPLE.mp3" preload="auto"></audio>
+
   <script>
-    const timerDisplay = document.getElementById('timer');
-    const labelDisplay = document.getElementById('label');
-    const cycleDisplay = document.getElementById('cycle');
-    const stageDisplay = document.getElementById('stage');
-    const upcomingDisplay = document.getElementById('upcoming');
-    const quoteDisplay = document.getElementById('quote');
-    const beep = document.getElementById('beep');
-    const progressBar = document.getElementById('progressBar');
-    const progressContainer = document.getElementById('progressContainer');
-    const tooltip = document.getElementById('tooltip');
+    const chime = document.getElementById('chime');
+    const playPauseBtn = document.getElementById('playPause');
+    const topColor = document.getElementById('topColor');
+    const intervalLabel = document.getElementById('intervalLabel');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const roundInfo = document.getElementById('roundInfo');
+    const elapsedTimeDisplay = document.getElementById('elapsedTime');
+    const totalProgress = document.getElementById('totalProgress');
+    const intervalProgress = document.getElementById('intervalProgress');
+    const setupPanel = document.getElementById('setupPanel');
+    const roundButtons = document.getElementById('roundButtons');
 
-    const pyramidSet = [[20, 10], [30, 15], [40, 20], [50, 25], [40, 20], [30, 15], [20, 10]];
-    const quotes = [
-      "Success usually comes to those who are too busy to be looking for it.",
-      "Don't wish for it. Work for it.",
-      "The only bad workout is the one that didn’t happen.",
-      "Push yourself, because no one else is going to do it for you.",
-      "Hard work beats talent when talent doesn’t work hard.",
-      "The body achieves what the mind believes."
+    let intervals = [];
+    let currentIntervalIndex = 0;
+    let currentTime = 0;
+    let totalDuration = 0;
+    let totalTimeRemaining = 0;
+    let workoutRemaining = 0;
+    let isRunning = false;
+    let intervalId;
+
+    const warmUp = [{ label: 'Warm-Up', duration: 300, color: '#ffa64d' }];
+    const coolDown = [{ label: 'Cool-Down', duration: 300, color: '#33cc99' }];
+    const sprintSet = [
+      { label: 'Sprint', duration: 20, color: '#ff4d4d' },
+      { label: 'Recover', duration: 10, color: '#4d79ff' },
+      { label: 'Sprint', duration: 30, color: '#ff4d4d' },
+      { label: 'Recover', duration: 15, color: '#4d79ff' },
+      { label: 'Sprint', duration: 40, color: '#ff4d4d' },
+      { label: 'Recover', duration: 20, color: '#4d79ff' },
+      { label: 'Sprint', duration: 50, color: '#ff4d4d' },
+      { label: 'Recover', duration: 25, color: '#4d79ff' },
+      { label: 'Sprint', duration: 40, color: '#ff4d4d' },
+      { label: 'Recover', duration: 20, color: '#4d79ff' },
+      { label: 'Sprint', duration: 30, color: '#ff4d4d' },
+      { label: 'Recover', duration: 15, color: '#4d79ff' },
+      { label: 'Sprint', duration: 20, color: '#ff4d4d' },
+      { label: 'Recover', duration: 10, color: '#4d79ff' }
     ];
-    const repeats = 3;
-    const fullCycle = [['warmup', 300]];
-    for (let i = 0; i < repeats; i++) {
-      fullCycle.push(...pyramidSet.flatMap(([s, r]) => [['sprint', s], ['rest', r]]));
+
+    const roundDur = sprintSet.reduce((sum, i) => sum + i.duration, 0);
+    const warmDur = 300;
+    const coolDur = 300;
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
     }
-    fullCycle.push(['cooldown', 300]);
 
-    let intervalIndex = 0;
-    let remaining = 0;
-    let timer;
-    let paused = false;
-    let isDragging = false;
-
-    document.addEventListener('mousedown', () => isDragging = true);
-    document.addEventListener('mouseup', () => isDragging = false);
-
-    progressContainer.addEventListener('mousemove', (event) => {
-      const rect = progressContainer.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const percent = x / rect.width;
-      const index = Math.floor(percent * fullCycle.length);
-      if (index >= 0 && index < fullCycle.length) {
-        const [label, duration] = fullCycle[index];
-        tooltip.style.left = `${x + rect.left}px`;
-        tooltip.style.top = `${rect.top - 30}px`;
-        tooltip.textContent = `${label.toUpperCase()} (${duration}s)`;
-        tooltip.style.display = 'block';
-        if (isDragging) {
-          intervalIndex = index;
-          clearInterval(timer);
-          nextInterval();
-        }
-      } else {
-        tooltip.style.display = 'none';
+    function displayRoundOptions() {
+      for (let i = 1; i <= 5; i++) {
+        const totalSec = warmDur + (roundDur * i) + coolDur;
+        const btn = document.createElement('button');
+        btn.className = 'round-button';
+        btn.textContent = `${i} Round${i > 1 ? 's' : ''} (${formatTime(totalSec)})`;
+        btn.addEventListener('click', () => startWorkout(i));
+        roundButtons.appendChild(btn);
       }
-    });
+    }
 
-    progressContainer.addEventListener('mouseleave', () => {
-      tooltip.style.display = 'none';
-    });
+    function startWorkout(roundCount) {
+      intervals = [...warmUp];
+      for (let i = 1; i <= roundCount; i++) {
+        intervals.push(...sprintSet.map(step => ({ ...step, round: i })));
+      }
+      intervals.push(...coolDown);
 
-    progressContainer.addEventListener('click', (event) => {
-      const rect = progressContainer.getBoundingClientRect();
-      const clickX = event.clientX - rect.left;
-      const percent = clickX / rect.width;
-      intervalIndex = Math.floor(percent * fullCycle.length);
-      intervalIndex = Math.max(0, Math.min(intervalIndex, fullCycle.length - 1));
-      clearInterval(timer);
-      nextInterval();
-    });
+      currentIntervalIndex = 0;
+      currentTime = intervals[0].duration;
+      totalDuration = intervals.reduce((sum, i) => sum + i.duration, 0);
+      totalTimeRemaining = totalDuration;
+      workoutRemaining = totalDuration;
 
-    function startWorkout() {
-      intervalIndex = 0;
-      quoteDisplay.textContent = '';
-      nextInterval();
+      setupPanel.style.display = 'none';
+      updateDisplay();
+
+      chime.currentTime = 0;
+      chime.play();
+
+      isRunning = true;
+      playPauseBtn.textContent = '⏸';
+      intervalId = setInterval(tick, 1000);
+    }
+
+    function updateDisplay() {
+      const current = intervals[currentIntervalIndex];
+      timerDisplay.textContent = formatTime(currentTime);
+      intervalLabel.textContent = current.label;
+      roundInfo.textContent = current.round ? `Round ${current.round}` : '';
+      elapsedTimeDisplay.textContent = 'Workout Remaining: ' + formatTime(workoutRemaining);
+
+      const totalPercent = 100 * (1 - totalTimeRemaining / totalDuration);
+      const intervalPercent = 100 * (1 - currentTime / current.duration);
+      totalProgress.style.width = `${totalPercent}%`;
+      intervalProgress.style.width = `${intervalPercent}%`;
+      topColor.style.backgroundColor = current.color;
     }
 
     function nextInterval() {
-      if (intervalIndex >= fullCycle.length) {
-        labelDisplay.textContent = 'Workout Complete!';
-        timerDisplay.textContent = 'Done';
-        cycleDisplay.textContent = '';
-        stageDisplay.textContent = '';
-        upcomingDisplay.textContent = '';
-        document.body.style.background = '#d0ffd0';
-        showQuote();
-        updateProgressBar();
+      chime.currentTime = 0;
+      chime.play();
+
+      currentIntervalIndex++;
+      if (currentIntervalIndex >= intervals.length) {
+        clearInterval(intervalId);
+        isRunning = false;
+        playPauseBtn.textContent = '▶';
         return;
       }
-      const [label, duration] = fullCycle[intervalIndex];
-      labelDisplay.textContent = label.toUpperCase();
-      if (label === 'sprint' || label === 'rest') speak(label);
-      if (label === 'sprint' || label === 'rest') {
-        const currentRound = Math.floor((intervalIndex - 1) / (pyramidSet.length * 2)) + 1;
-        const stage = ((intervalIndex - 1) % (pyramidSet.length * 2)) / 2 + 1;
-        cycleDisplay.textContent = `Round ${currentRound} of ${repeats}`;
-        stageDisplay.textContent = `Stage ${Math.ceil(stage)} of ${pyramidSet.length}`;
+      currentTime = intervals[currentIntervalIndex].duration;
+    }
+
+    function tick() {
+      if (currentTime > 0) {
+        currentTime--;
+        totalTimeRemaining--;
+        workoutRemaining--;
       } else {
-        cycleDisplay.textContent = '';
-        stageDisplay.textContent = '';
+        nextInterval();
       }
-      quoteDisplay.textContent = '';
-      remaining = duration;
-      updateTimer();
-      updateUpcoming();
-      updateProgressBar();
-      updateBackground(label);
-      playBeep();
-      clearInterval(timer);
-      timer = setInterval(countDown, 1000);
+      updateDisplay();
     }
 
-    function countDown() {
-      if (!paused) {
-        remaining--;
-        if (remaining <= 5) document.body.style.background = '#ffecb3';
-        updateTimer();
-        if (remaining <= 0) {
-          clearInterval(timer);
-          intervalIndex++;
-          setTimeout(nextInterval, 500);
-        }
-      }
-    }
-
-    function updateTimer() {
-      const mins = Math.floor(remaining / 60);
-      const secs = remaining % 60;
-      timerDisplay.textContent = `${String(mins).padStart(1, '0')}:${String(secs).padStart(2, '0')}`;
-    }
-
-    function playBeep() {
-      beep.currentTime = 0;
-      beep.play();
-    }
-
-    function speak(text) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
-    }
-
-    function updateProgressBar() {
-      const progress = (intervalIndex / fullCycle.length) * 100;
-      progressBar.style.width = `${progress}%`;
-    }
-
-    function pauseResume() {
-      paused = !paused;
-    }
-
-    function skipInterval() {
-      clearInterval(timer);
-      intervalIndex = Math.min(intervalIndex + 1, fullCycle.length - 1);
-      nextInterval();
-    }
-
-    function previousInterval() {
-      clearInterval(timer);
-      intervalIndex = Math.max(intervalIndex - 1, 0);
-      nextInterval();
-    }
-
-    function updateUpcoming() {
-      const nextItems = fullCycle.slice(intervalIndex + 1, intervalIndex + 4)
-        .map(([label, duration]) => `${label.toUpperCase()} (${duration}s)`).join(' → ');
-      upcomingDisplay.textContent = nextItems ? `Next: ${nextItems}` : '';
-    }
-
-    function updateBackground(label) {
-      const isLastCooldown = (label === 'cooldown' && intervalIndex === fullCycle.length - 1);
-      if (isLastCooldown) {
-        document.body.style.background = '#d0ffd0';
+    playPauseBtn.addEventListener('click', () => {
+      if (isRunning) {
+        clearInterval(intervalId);
+        playPauseBtn.textContent = '▶';
       } else {
-        switch (label) {
-          case 'warmup':
-          case 'cooldown':
-            document.body.style.background = '#e0f7fa';
-            break;
-          case 'sprint':
-            document.body.style.background = '#ce1432';
-            break;
-          case 'rest':
-            document.body.style.background = '#2956f5';
-            break;
-          default:
-            document.body.style.background = '#f4f4f4';
-        }
+        intervalId = setInterval(tick, 1000);
+        playPauseBtn.textContent = '⏸';
       }
-    }
+      isRunning = !isRunning;
+    });
 
-    function showQuote() {
-      const quote = quotes[Math.floor(Math.random() * quotes.length)];
-      quoteDisplay.textContent = `“${quote}”`;
-    }
+    displayRoundOptions();
   </script>
 </body>
 </html>
